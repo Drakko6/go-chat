@@ -191,20 +191,20 @@ func menu(s net.Listener) {
 
 		case op == 2:
 			fmt.Println("Opción 2")
+			// input := bufio.NewReader(os.Stdin)
+			// fmt.Printf("Introduce el nombre del archivo: ")
+			// nombre, _, _ := input.ReadLine()
 
-			fmt.Printf("Introduce el nombre del archivo: ")
-			nombre, _, _ := input.ReadLine()
 
-
-			archivo, err := os.Create(string(nombre)+".txt")
+			archivo, err := os.Create("respaldo.txt")
 			if err != nil {
 			 	fmt.Println(err)
 			 	
 			}
 
-			
-
-			defer archivo.Close()
+			archivo.WriteString(string(chatCompleto))
+			archivo.Close()
+			fmt.Println("Archivo guardado como respaldo.txt")
 
 		case op == 0:
 			fmt.Println("Saliendo...")
