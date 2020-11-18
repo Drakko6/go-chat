@@ -100,29 +100,50 @@ func main(){
 
 		case op == 2:
 			fmt.Println("Opción 2")
-			// fmt.Printf("Nombre del archivo: ")
+					
+
+			var nombre string
+			fmt.Printf("Introduce el nombre del archivo: ")
+			fmt.Scanln(&nombre)
 			// nombre, _, _ := input.ReadLine()
 
 
-			// archivo, err := os.Create(string(nombre)+".txt")
-			// if err != nil {
-			// 	fmt.Println(err)
-			// 	return
-			// }
+			archivo, err := os.Create(string(nombre)+".txt")
+			if err != nil {
+				fmt.Println(err)
+			 	return
+			}
 
-			fmt.Printf("Introduce la ubicación del archivo: ")
-			
-			handleArchivo(conn)
+			var nombreBytes []byte
+			nombreBytes = append(nombreBytes, []byte(nombre)...)
+
+			var n uint
+			fmt.Printf("¿Cuántas líneas tendrá el archivo? ")
+			fmt.Scanln(&n)
+
+			var sliceBytes []byte
+			var archivoMandar []byte
+			archivoMandar = append(archivoMandar, []byte("2")...)
+			archivoMandar = append(archivoMandar, append(nombreBytes, finLinea)...)
 
 
+			var i uint =1
+			var s []byte
+			for i<= n{
+				fmt.Printf("Línea %d :", i)
+				s, _, _ = input.ReadLine()
+				sliceBytes = append(sliceBytes, append(s, finLinea)...)
+				archivoMandar = append(archivoMandar, append(s, finLinea)...)
+				i ++
+			}
 
 
-			// for _, c:= range ascendente {
-			// 	archivo.WriteString(c + "\n")
-			// }
+			archivo.Write(sliceBytes)
 
-			// defer archivo.Close()
-					
+			archivo.Close()
+		
+		
+			handleArchivo(conn, archivoMandar, nombreBytes)
 		
 		
 		case op == 3:
@@ -158,12 +179,17 @@ func enviarNick(conn net.Conn){
 
 
 
-func handleArchivo(conn net.Conn){
+func handleArchivo(conn net.Conn, archivo []byte, nombre []byte){
 
-	buf, _, _ := input.ReadLine()
-	if len(buf) > 0 {
-			conn.Write(append([]byte(nick + "-> Archivo:"), append(buf, finLinea)...))
-	}
+	//mandar archivo
+	conn.Write(append(archivo, finLinea))
+	// conn.Write(archivo)
+
+	//mandar nombre
+	nombre = (append(nombre, []byte(".txt")...))
+
+	conn.Write(append([]byte(nick + "-> Archivo:"), append([]byte(nombre), finLinea)...))
+	
 
 }
 
@@ -203,7 +229,48 @@ func recibirMensajes(c net.Conn) {
 
 		}
 
-		fmt.Printf("%s",datos)
+		if(string(datos[0])=="2"){
+			//es un archivo, no imprimir...Sino crear el archivo
+
+			var nombre []byte
+
+			var primerIndice int 
+			for i:=1; i<len(datos); i++{
+				if datos[i] ==finLinea{
+					primerIndice = i+1
+					break
+				}
+				nombre= append(nombre, datos[i])
+
+			}
+
+
+			var sliceBytes []byte
+			for j:=primerIndice; j<len(datos); j++{
+				
+				sliceBytes= append(sliceBytes, datos[j])
+
+			}
+
+
+			archivo, err := os.Create(string(nombre)+".txt")
+			if err != nil {
+			 	fmt.Println(err)
+			 	
+			 }
+
+			 archivo.Write(sliceBytes)
+
+			 archivo.Close()
+
+
+		}else{
+			
+			fmt.Printf("%s",datos)
+
+
+		}
+
 
 		datos = make([]byte, 0)
 

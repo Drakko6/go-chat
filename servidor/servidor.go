@@ -114,6 +114,12 @@ func handleClient (c net.Conn){
 				break
 
 
+			}else if string(datos[0]) =="2"{
+
+				enviarOtrosClientes(c, datos)
+				datos = make([]byte, 0)
+		
+   
 			}else if string(datos[0]) =="3"{
 
 			 enviarChatCompleto(c)
